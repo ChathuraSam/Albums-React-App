@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import CardList from './components/CardList';
+import "tachyons"
+import { albums } from './data';
+import SearchBox from './components/SearchBox';
+import Header from './components/Header';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component{
+
+  constructor() {
+    super();
+
+    this.state = {
+      txtSearchTitle:'',
+      txtSearchUserId:'',
+      albums:albums
+    }
+  }
+
+  onTitleSearchChange = (event)=> {
+    console.log(event.target.value)
+    this.setState({txtSearchTitle:event.target.value})
+  }
+
+  onUserIdSearchChange = (event)=> {
+    console.log(event.target.value)
+    this.setState({txtSearchUserId:event.target.value})
+  }
+
+  componentDidMount() {
+    fetch('https://jsonplaceholder.typicode.com/albums')
+      .then(response => response.json())
+      .then(json => this.setState({albums:json}))
+  }
+
+  render() {
+    const filteredAlbum = this.state.albums.filter(albums =>{
+      return(
+        albums.title.toLowerCase().includes(this.state.txtSearchTitle.toLowerCase())
+      )
+    })
+    return (
+      <div className='tc'>
+        <Header title={'Albums By Chathura'}/>
+        <SearchBox placeholder={'Seach By Title'} onSearchCgange={this.onTitleSearchChange}/>
+        <SearchBox placeholder={'Seach By User ID'} onSearchCgange={this.onUserIdSearchChange}/>
+        <CardList albums={filteredAlbum}/>
+      </div>
+    );
+  } 
 }
-
 export default App;
