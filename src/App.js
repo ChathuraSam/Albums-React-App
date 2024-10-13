@@ -1,52 +1,62 @@
-import React, { Component } from 'react';
-import CardList from './components/CardList';
-import "tachyons"
-import { albums } from './data';
-import SearchBox from './components/SearchBox';
-import Header from './components/Header';
+import React, {
+  useEffect,
+  useState,
+} from "react";
+import CardList from "./components/CardList";
+import "tachyons";
+import SearchBox from "./components/SearchBox";
+import Header from "./components/Header";
 
-class App extends Component{
+const App = () => {
+  const [title, setTitle] = useState("");
+  const [userId, setUserId] = useState("");
+  const [albums, setAlbums] = useState([]);
+  const [filteredAlbums, setFilteredAlbums] = useState([]);
 
-  constructor() {
-    super();
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/albums")
+      .then((response) => response.json())
+      .then((data) => {
+        setAlbums(data);
+        setFilteredAlbums(data);
+        console.log(data);
+      });
+  }, []);
 
-    this.state = {
-      txtSearchTitle:'',
-      txtSearchUserId:'',
-      albums:albums
-    }
-  }
+  useEffect(() => {
+    const filteredList = albums.filter((item) => {
+      console.log(item.title.includes(userId));
+      return (
+        item.title.includes(title)
+      );
+    });
+    console.log(filteredAlbums);
+    setFilteredAlbums(filteredList);
+  }, [title, userId]);
 
-  onTitleSearchChange = (event)=> {
-    console.log(event.target.value)
-    this.setState({txtSearchTitle:event.target.value})
-  }
+  const titleChangeHandler = (event) => {
+    const input = event.target.value;
+    setTitle(input);
+  };
 
-  onUserIdSearchChange = (event)=> {
-    console.log(event.target.value)
-    this.setState({txtSearchUserId:event.target.value})
-  }
+  const userIdChangeHandler = (event) => {
+    const input = event.target.value.toString();
+    setUserId(input);
+  };
 
-  componentDidMount() {
-    fetch('https://jsonplaceholder.typicode.com/albums')
-      .then(response => response.json())
-      .then(json => this.setState({albums:json}))
-  }
-
-  render() {
-    const filteredAlbum = this.state.albums.filter(albums =>{
-      return(
-        albums.title.toLowerCase().includes(this.state.txtSearchTitle.toLowerCase())
-      )
-    })
-    return (
-      <div className='tc'>
-        <Header title={'Albums By Chathura'}/>
-        <SearchBox placeholder={'Seach By Title'} onSearchCgange={this.onTitleSearchChange}/>
-        <SearchBox placeholder={'Seach By User ID'} onSearchCgange={this.onUserIdSearchChange}/>
-        <CardList albums={filteredAlbum}/>
-      </div>
-    );
-  } 
-}
+  return (
+    <div className="tc">
+      <Header title={"Albums By Chathura"} />
+      <SearchBox
+        placeholder={"Seach By Title"}
+        onSearchTextChange={titleChangeHandler}
+      />
+      <SearchBox
+        placeholder={"Seach By User ID"}
+        onSearchTextChange={userIdChangeHandler}
+      />
+      <CardList albums={filteredAlbums} />
+    </div>
+  );
+};
 export default App;
